@@ -1,7 +1,5 @@
 language="elixir"
-run = "sh ./run.sh"
-entrypoint = "./run.sh"
-hidden = [".iex.exs"]
+run = "sh run.sh"
 
 [env]
 LC_ALL = "en_US.UTF-8"

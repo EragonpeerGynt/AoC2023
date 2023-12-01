@@ -1,5 +1,7 @@
 language="elixir"
 run = "sh run.sh"
+entrypoint = "main.exs"
+hidden = [".iex.exs"]
 
 [env]
 LC_ALL = "en_US.UTF-8"
@@ -8,3 +10,6 @@ MIX_HOME = "/home/runner/${REPL_SLUG}/.mix"
 
 [nix]
 channel = "stable-21_11"
+
+[interpreter]
+command = ["iex"]

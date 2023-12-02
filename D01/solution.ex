@@ -27,7 +27,6 @@ defmodule D01 do
 		input
   		|> Enum.map(
 			fn x -> combine_split(x)
-   			|> IO.inspect
 			|> get_numbers_from_array()
    		end)
 		|> Enum.sum()

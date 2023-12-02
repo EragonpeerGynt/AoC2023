@@ -1,65 +1,4 @@
 defmodule D02 do
-	def part1(input) do
-		input
-  		|> Enum.map(&parse_game/1)
-  		|> Enum.map(&check_rounds_check/1)
-		|> Enum.sum()
-	end
-
-	def check_rounds_check({game, rounds}) do
-	 if check_rounds(rounds) do
-		 game
-	 else
-		 0
-	 end
-	end
-	
-	def check_rounds(rounds) do
-	 rounds
-	 |> Enum.all?(fn x -> !check_hand(x) end)
-	end
-	
-	def check_hand(cubes) do
-	 cubes
-	 |> Enum.reduce_while(storage(), fn x,storage -> update_storage_check(storage, x) end)
-	 |> then(&detect_negative/1)
-	end
-	
-	def detect_negative(storage) do
-	 storage
-	 |> Map.to_list()
-	 |> Enum.any?(fn {_,x} -> x < 0 end)
-	end
-	
-	def update_storage_check(storage, insert={new_element, value}) do
-	 if storage[new_element] < value do
-		 {:halt, update_storage(storage, insert)}
-	 else
-		 {:cont, update_storage(storage, insert)}
-	 end
-	end
-
-	def part2(input) do
-		input
-  		|> Enum.map(&parse_game/1)
-		|> Enum.map(&get_factorio_game/1)
-		|> Enum.sum()
-	end
-
- 	def get_factorio_game(game) do
-		game
-  		|> get_max_game()
-		|> Map.to_list()
-  		|> Enum.map(fn {_, x} -> x end)
-  		|> Enum.product()
-  	end
-
- 	def get_max_game({_,rounds}) do
-		rounds
-  		|> List.flatten()
-		|> Enum.reduce(empty_storage(), fn x,acc -> update_max_storage(acc, x) end)
-  	end
- 
   	def parse_game(game) do
 		game
   		|> String.split(": ")
@@ -118,6 +57,50 @@ defmodule D02 do
 			:old
 		end
    	end
+
+ 	def part1(input, storage) do
+		input
+		|> Enum.map(&parse_game/1)
+		|> Enum.map(&colapse_rounds/1)
+  		|> Enum.map(fn x -> part1_adder(x, storage) end)
+  		|> Enum.sum()
+  	end
+
+   	def part1_adder({game,max_round}, storage) do
+		if !part1_not_in_range(max_round, storage) do
+  			game
+	 	else
+   			0
+	  	end
+ 	end
+
+  	def part1_not_in_range(max_round, storage) do
+		max_round
+  		|> Enum.any?(fn {x,y} -> storage[x] < y end)
+   	end
+
+ 	def part2(input) do
+		input
+  		|> Enum.map(&parse_game/1)
+		|> Enum.map(&colapse_rounds/1)
+  		|> Enum.map(&part2_factorio/1)
+		|> Enum.sum()
+  	end
+
+   	def part2_factorio({_, rounds}) do
+		rounds
+		|> Enum.map(fn {_,y} -> y end)
+  		|> Enum.product()
+ 	end
+
+   	def colapse_rounds({game, rounds}) do 
+		rounds
+		|> List.flatten()
+  		|> Enum.group_by(fn {x, _} -> x end, fn {_, y} -> y end)
+  		|> Map.to_list()
+		|> Enum.map(fn {x,y} -> {x, y |> Enum.max()} end)
+  		|> then(fn x -> {game, x} end)
+ 	end
 end
 
 defmodule Main do
@@ -125,7 +108,7 @@ defmodule Main do
 		input = Input.file(day)
   		|> String.split("\n")		
 	
-		D02.part1(input) |> IO.puts
+		D02.part1(input, D02.storage()) |> IO.puts
 		D02.part2(input) |> IO.puts
 	end
 end
